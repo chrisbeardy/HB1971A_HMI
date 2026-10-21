@@ -1,0 +1,123 @@
+﻿<UserControl x:Class="HB1971A_HMI.Screens.About.AboutControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="576" d:DesignWidth="1024">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" PanningMode="VerticalOnly" Background="{DynamicResource WindowBackground}">
+        <Grid Margin="32,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="32" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <Image Source="/Resources/HB Logo No Background.png" Height="80" HorizontalAlignment="Left"
+                       Margin="0,0,0,16" RenderOptions.BitmapScalingMode="HighQuality" />
+
+                <Border Background="{DynamicResource ContentBackground}"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                        CornerRadius="4" Padding="20,16" Margin="0,0,0,16">
+                    <StackPanel>
+                        <HBStaticLabel Content="Software Information" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <HBStaticLabel Grid.Row="0" Grid.Column="0" Content="Project:"      Foreground="{DynamicResource UnitForeground}" Margin="0,0,0,8"/>
+                            <HBStandardLabel Grid.Row="0" Grid.Column="1" Content="HB1971A__HMI" Margin="0,0,0,8"/>
+                            <HBStaticLabel Grid.Row="1" Grid.Column="0" Content="Version:"      Foreground="{DynamicResource UnitForeground}" Margin="0,0,0,8"/>
+                            <HBStandardLabel Grid.Row="1" Grid.Column="1" Name="VersionText" Content="—" Margin="0,0,0,8"/>
+                            <HBStaticLabel Grid.Row="2" Grid.Column="0" Content="PLC Platform:" Foreground="{DynamicResource UnitForeground}" Margin="0,0,0,8"/>
+                            <HBStandardLabel Grid.Row="2" Grid.Column="1" Content="Beckhoff" Margin="0,0,0,8"/>
+                            <HBStaticLabel Grid.Row="3" Grid.Column="0" Content="Developed by:" Foreground="{DynamicResource UnitForeground}"/>
+                            <HBStandardLabel Grid.Row="3" Grid.Column="1" Content="Huxley Bertram"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0"
+                        Padding="0,16,0,0" Margin="0,8,0,0">
+                    <StackPanel>
+                        <HBStandardLabel Content="Huxley Bertram" FontSize="11"/>
+                        <HBStandardLabel Content="53 Pembroke Ave, Waterbeach, Cambridge CB25 9QP" FontSize="11"/>
+                        <TextBlock FontSize="11">
+                            <Hyperlink NavigateUri="https://www.huxleybertram.com"
+                                       Foreground="{DynamicResource LinkForeground}"
+                                       RequestNavigate="Website_RequestNavigate">www.huxleybertram.com</Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2">
+                <Border Background="{DynamicResource ContentBackground}"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                        CornerRadius="4" Padding="20,16" Margin="0,0,0,16">
+                    <StackPanel>
+                        <HBStaticLabel Content="Theme" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                        <HBStandardComboBox Name="ThemeComboBox" Width="160" HorizontalAlignment="Left"
+                                  SelectionChanged="ThemeComboBox_SelectionChanged" SelectedIndex="0">
+                            <!-- The content is parsed straight back into HBControls.Enums.Theme,
+                                 so each one has to stay spelled exactly as the enum member is. -->
+                            <ComboBoxItem Content="Cream"/>
+                            <ComboBoxItem Content="LightGray"/>
+                            <ComboBoxItem Content="Nord"/>
+                            <ComboBoxItem Content="Gruvbox"/>
+                        </HBStandardComboBox>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="{DynamicResource ContentBackground}"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                        CornerRadius="4" Padding="20,16" Margin="0,0,0,16">
+                    <StackPanel>
+                        <HBStaticLabel Content="Language" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                        <HBStandardComboBox Name="LanguageComboBox" Width="200" HorizontalAlignment="Left"
+                                  SelectionChanged="LanguageComboBox_SelectionChanged"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="{DynamicResource ContentBackground}"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                        CornerRadius="4" Padding="20,16" Margin="0,0,0,16">
+                    <StackPanel>
+                        <HBStaticLabel Content="Persistent Data" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                        <!-- MinWidth rather than Width: the caption is drawn at the density's font
+                             size, so a fixed width clips the text at the larger densities. -->
+                        <HBStaticButton Content="Save Persistent Data" Name="SavePersistentsButton" MinWidth="180" HorizontalAlignment="Left" Click="SavePersistentsButton_Click"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="{DynamicResource ContentBackground}"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                        CornerRadius="4" Padding="20,16">
+                    <StackPanel>
+                        <HBStaticLabel Content="System" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                        <WrapPanel>
+                            <!-- Click is raised only once the operator confirms -->
+                            <HBStandardButton Content="Exit Application" Glyph="&#xE8BB;" MinWidth="180" Margin="0,0,8,8"
+                                              ConfirmMode="Dialog" ConfirmationTitle="Exit application"
+                                              ConfirmationMessage="Close the operator screen? The machine keeps running."
+                                              Click="ExitButton_Click"/>
+                            <!-- The PLC saves its persistent data and then shuts the controller down -->
+                            <HBStandardButton Content="Shut Down Controller" Glyph="&#xE7E8;" MinWidth="180" Margin="0,0,8,8"
+                                              SetVariable="MAIN.ShutdownRequested" SetContent="True"
+                                              ConfirmMode="Dialog" ConfirmationTitle="Shut down"
+                                              ConfirmationMessage="Stop the table first. The PLC saves its settings, then the controller shuts down."/>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

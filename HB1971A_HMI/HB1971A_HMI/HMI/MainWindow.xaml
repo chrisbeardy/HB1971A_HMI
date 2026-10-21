@@ -1,0 +1,99 @@
+﻿<Window x:Class="HB1971A_HMI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:Internal="clr-namespace:HBControls.Internal;assembly=HBControls"
+        xmlns:operator="clr-namespace:HB1971A_HMI.Screens.Operator"
+        xmlns:plctreewalker="clr-namespace:HB1971A_HMI.Screens.PlcTreeWalker"
+        xmlns:about="clr-namespace:HB1971A_HMI.Screens.About"
+        mc:Ignorable="d"
+        Height="768" Width="1024"
+        WindowStyle="None" WindowState="Maximized"
+        Title=""
+        Icon="/Resources/Logo.ico"
+        Background="{DynamicResource WindowBackground}"
+        Loaded="Window_Loaded" Closing="Window_Closing"
+        Stylus.IsPressAndHoldEnabled="False"
+        d:DesignHeight="768" d:DesignWidth="1024">
+    <!-- Press-and-hold is off for the whole window: a held touch would otherwise wait to become a
+         right-click before the hold-to-run buttons saw the press. -->
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="40" />
+            <RowDefinition Height="72" />
+        </Grid.RowDefinitions>
+
+        <!-- Title Bar: the machine status -->
+        <DockPanel Grid.Row="0" Background="{DynamicResource HeaderBackground}" LastChildFill="True">
+            <Image Source="/Resources/HB Logo No Background.png" DockPanel.Dock="Left" Height="56" Margin="12,0" />
+            <Image Source="/Resources/CustomerLogo.png" DockPanel.Dock="Right" Height="56" Margin="12,0" />
+            <HBStandardLabel GetVariable="MAIN.Machine.StatusText" PreventTranslation="True"
+                Margin="8,4" Padding="0" FontSize="22" FontWeight="SemiBold" BorderThickness="0"
+                HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                <HBStandardLabel.ContentTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" TextWrapping="Wrap" TextAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" />
+                    </DataTemplate>
+                </HBStandardLabel.ContentTemplate>
+            </HBStandardLabel>
+        </DockPanel>
+
+        <!-- Content Area — one persistent tab per screen; the strip is hidden and the
+             bottom nav buttons drive selection, so screens are never recreated. -->
+        <TabControl Grid.Row="1" x:Name="MainTabs" BorderThickness="0" Padding="0"
+                    Background="{DynamicResource WindowBackground}">
+            <TabControl.ItemContainerStyle>
+                <Style TargetType="TabItem">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </Style>
+            </TabControl.ItemContainerStyle>
+            <TabItem>
+                <operator:OperatorControl />
+            </TabItem>
+            <TabItem>
+                <plctreewalker:PlcTreeWalkerControl />
+            </TabItem>
+            <TabItem>
+                <about:AboutControl />
+            </TabItem>
+        </TabControl>
+
+        <!-- Status Bar -->
+        <!-- LastChildFill is False on purpose: the clock is the last child, and the default
+             True makes a DockPanel's last child ignore its Dock and fill what is left, which
+             put the clock in the middle of the bar instead of at the right-hand end. -->
+        <DockPanel Grid.Row="2" Background="{DynamicResource StatusBarBackground}" LastChildFill="False">
+            
+            <StackPanel VerticalAlignment="Center" DockPanel.Dock="Left" Margin="16,0,0,0">
+                <HBStaticLabel Content="PLC Update:" Margin="0" Padding="0" />
+                <HBStandardLabel Name="UpdateTimePLC" Margin="0" Padding="0" />
+            </StackPanel>
+            <!-- No fixed Width or Height: a short-date string is wider than 70px, so the year
+                 lost its last digit. The rows are Auto, so the block sizes to whatever the
+                 current theme's font produces. -->
+            <Grid DockPanel.Dock="Right" VerticalAlignment="Center" Margin="0,0,16,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <HBStandardLabel Grid.Row="0" Name="DateStr" HorizontalContentAlignment="Center" Padding="0" />
+                <HBStandardLabel Grid.Row="1" Name="TimeStr" HorizontalContentAlignment="Center" Padding="0" />
+            </Grid>
+        </DockPanel>
+
+        <!-- Bottom Touch Navigation — one button per screen, fills width equally -->
+        <UniformGrid Grid.Row="3" Rows="1" Background="{DynamicResource HeaderBackground}">
+            <HBStaticButton Content="Operator" Glyph="&#xE80F;" Tag="0" Height="72" Click="TouchNav_Click" />
+            <HBStaticButton Content="PlcTreeWalker" Glyph="&#xE8F1;" Tag="1" Height="72" Click="TouchNav_Click" />
+            <HBStaticButton Content="About" Glyph="&#xE946;" Tag="2" Height="72" Click="TouchNav_Click" />
+        </UniformGrid>
+
+    </Grid>
+</Window>

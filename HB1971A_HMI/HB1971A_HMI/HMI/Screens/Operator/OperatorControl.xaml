@@ -1,0 +1,74 @@
+﻿<UserControl x:Class="HB1971A_HMI.Screens.Operator.OperatorControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="576" d:DesignWidth="1024">
+    <!-- HB labelled controls draw their borders by Position: Single is boxed on its own, and a
+         stack of Top, Middle and Bottom shares borders as one table, so they take no margins. -->
+    <Grid Background="{DynamicResource WindowBackground}" Margin="16">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <!-- At station and the hold-to-run buttons, acting as the pushbuttons on the machine -->
+        <StackPanel Grid.Column="0" Margin="0,0,16,0">
+            <HBLabelledStatusIndicator Label="At station" GetVariable="MAIN.Machine.Table.OnDwell"
+                                       Position="Single" Width="Auto" HorizontalAlignment="Stretch"
+                                       ShowStatusText="False" IndicatorSize="32" Margin="0,0,0,16" />
+            <UniformGrid Rows="1">
+                <HBStandardButtonToggle Content="Reverse" Glyph="&#xE72B;" GlyphPosition="Top"
+                                        UserAction="Momentary" SetVariable="MAIN.Machine.Table.HMI_Reverse"
+                                        SetOnContent="True" SetOffContent="False"
+                                        Height="140" Margin="0,0,8,0" />
+                <HBStandardButtonToggle Content="Reset" Glyph="&#xE72C;" GlyphPosition="Top"
+                                        UserAction="Momentary" SetVariable="MAIN.Machine.HMI_Reset"
+                                        SetOnContent="True" SetOffContent="False"
+                                        Height="140" Margin="4,0" />
+                <HBStandardButtonToggle Content="Forward" Glyph="&#xE72A;" GlyphPosition="Top"
+                                        UserAction="Momentary" SetVariable="MAIN.Machine.Table.HMI_Forward"
+                                        SetOnContent="True" SetOffContent="False"
+                                        Height="140" Margin="8,0,0,0" />
+            </UniformGrid>
+        </StackPanel>
+
+        <!-- Settings, written straight to the PLC's persistent values. Entry outside the limits the
+             PLC gives is refused; the ramp constants are FB_OmronMX2's own. -->
+        <Border Grid.Column="1" VerticalAlignment="Top"
+                Background="{DynamicResource ContentBackground}"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                CornerRadius="4" Padding="20,16">
+            <StackPanel>
+                <HBStaticLabel Content="Settings" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,12" />
+                <HBLabelledNumberBox Label="Index speed" Unit="Hz" DecimalPlaces="1" LabelWidth="270"
+                                     Position="Top"
+                                     SetVariable="MAIN.Machine.Table.IndexVelocity"
+                                     Minimum="0.1" MaximumValue="MAIN.Machine.TableDrive.MaxVelocity" />
+                <HBLabelledNumberBox Label="Acceleration to index speed" Unit="s" DecimalPlaces="2" LabelWidth="270"
+                                     Position="Middle"
+                                     SetVariable="MAIN.Machine.Table.AccelerationTimeToIndexVelocity"
+                                     MinimumValue="MAIN.Machine.TableDrive.MIN_RAMP_TIME"
+                                     MaximumValue="MAIN.Machine.TableDrive.MAX_RAMP_TIME" />
+                <HBLabelledNumberBox Label="Deceleration from index speed" Unit="s" DecimalPlaces="2" LabelWidth="270"
+                                     Position="Middle"
+                                     SetVariable="MAIN.Machine.Table.DecelerationTimeFromIndexVelocity"
+                                     MinimumValue="MAIN.Machine.TableDrive.MIN_RAMP_TIME"
+                                     MaximumValue="MAIN.Machine.TableDrive.MAX_RAMP_TIME" />
+                <HBLabelledNumberBox Label="Drive acceleration, F002" Unit="s" DecimalPlaces="2" LabelWidth="270"
+                                     Position="Middle"
+                                     SetVariable="MAIN.Machine.TableDrive.AccelerationTimeToMaxFrequency"
+                                     MinimumValue="MAIN.Machine.TableDrive.MIN_RAMP_TIME"
+                                     MaximumValue="MAIN.Machine.TableDrive.MAX_RAMP_TIME" />
+                <HBLabelledNumberBox Label="Drive deceleration, F003" Unit="s" DecimalPlaces="2" LabelWidth="270"
+                                     Position="Bottom"
+                                     SetVariable="MAIN.Machine.TableDrive.DecelerationTimeFromMaxFrequency"
+                                     MinimumValue="MAIN.Machine.TableDrive.MIN_RAMP_TIME"
+                                     MaximumValue="MAIN.Machine.TableDrive.MAX_RAMP_TIME" />
+                <HBStaticLabel Content="F002 and F003 are the drive's ramps between 0 Hz and its maximum frequency."
+                               FontSize="11" Foreground="{DynamicResource UnitForeground}" Margin="0,8,0,0" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

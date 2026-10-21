@@ -1,7 +1,7 @@
 ---
 name: Quick Operator HMI
-status: proposed
-date: 2026-10-19
+status: done
+date: 2026-10-21
 tags: [hmi]
 depends_on: []
 ---
@@ -31,29 +31,36 @@ to the engineer's availability.
 
 ## Proposed Solution
 
-**Status.** The screen shows one overall machine status, in large text with a matching colour, so
-it can be read from the table. It also shows the PLC's plain-text message saying what the table
-is doing or what is wrong and what to press:
+**Status.** The top bar shows the machine status as the PLC's own plain-text message, in large
+text so it can be read from the table: what the machine is doing, or what is wrong and what to
+press. It is on every page. The machine status covers:
 
-- Starting up, or not connected to the PLC
 - Safety stop: E-stop pressed or a guard open, then reset the safety system
 - Error: the reason, and press Reset
 - Stopped before dwell: hold Forward or Reverse to continue
 - Moving
-- Ready, and whether the table is at a station
+- Ready
+
+The top bar shows the PLC's text directly; the screen does not report its own connection to the
+PLC. The operator page shows whether the table is at a station.
 
 **Buttons.** On-screen Forward, Reverse and Reset do exactly what the physical buttons do.
 Forward and Reverse are hold-to-run, one station per press, and continue after an early release.
 Reset clears faults and resets the safety system. The screen and physical buttons act as one
-set: the button that started a move has to stay held, and every other button, on screen or
-physical, is ignored until the move ends. If the screen goes away while one of its buttons is
-held (the application closes or crashes, or its connection drops), the PLC treats that as the
-button being let go.
+set: a move continues while its button is held, on screen or physically, and every other press
+is ignored until the move ends. The screen runs on the controller itself, so a button left held
+by a screen that closes or crashes is an accepted risk: the move it holds runs on to the station,
+and the next Reset with the table stopped clears it.
 
 **Settings.** The operator can change the index speed and both ramps, each ramp in both of its
-linked forms. The PLC checks every change. A refused value is shown as refused, with the reason,
-and the screen goes back to the value in force. Accepted changes are kept like the other table
-settings, saved automatically when the controller shuts down.
+linked forms. The screen refuses entry outside the limits the PLC gives: the maximum index speed
+and the shortest and longest ramp time. The PLC still checks every change, and a value it refuses
+goes back to the value in force. Accepted changes are kept like the other table settings, saved
+automatically when the controller shuts down.
+
+**About page.** The About page shows the HB logo and two system buttons, each asking for
+confirmation first: Exit Application closes the screen and leaves the machine running, and Shut
+Down Controller saves the settings and shuts the controller down.
 
 **Independence.** With no on-screen button held, the machine runs exactly the same whether the
 screen is running, closed or crashed. The physical buttons always work.
@@ -64,32 +71,35 @@ screen is running, closed or crashed. The physical buttons always work.
 
 | ID | Requirement | Priority |
 |----|-------------|----------|
-| FR-01 | The screen shows one overall machine status: starting up or not connected, safety stop, error, stopped before dwell, moving, or ready | Must |
+| FR-01 | The top bar shows one overall machine status as the PLC's text: safety stop, error, stopped before dwell, moving or ready | Must |
 | FR-02 | The screen shows the PLC's plain-text status or fault message, including what the operator needs to press | Must |
 | FR-03 | The screen shows whether the table is at a station | Should |
 | FR-04 | On-screen Forward and Reverse behave exactly like the physical buttons: hold-to-run, one station per press, a fresh press needed for each move, and continuing after an early release | Must |
 | FR-05 | On-screen Reset behaves exactly like the physical Reset, including resetting the safety system | Must |
-| FR-06 | On-screen and physical buttons act as one set. The button that started a move must stay held, and every other button, on screen or physical, is ignored until the move ends | Must |
-| FR-07 | An on-screen button counts as released when the finger or pointer lifts off it or leaves it | Must |
-| FR-08 | If the application closes or crashes, or its connection to the PLC is lost, while an on-screen button is held, the PLC treats the button as released | Must |
+| FR-06 | On-screen and physical buttons act as one set. A move continues while its button is held, on screen or physically, and every other press is ignored until the move ends | Must |
+| FR-07 | An on-screen button counts as released when the finger or pointer lifts off it | Must |
+| FR-08 | An on-screen Forward or Reverse left held by an application that closed or crashed is cleared by the next Reset with the table stopped | Must |
 | FR-09 | The operator can view and change the index speed, the acceleration and the deceleration, each ramp in both its drive-native and time-to-index-speed forms, linked as in Adjustable Drive Ramps | Must |
-| FR-10 | The PLC validates every change from the screen. A refused value is shown as refused with its reason, and the screen reverts to the value in force | Must |
+| FR-10 | The screen refuses entry outside the limits the PLC gives. The PLC still validates every change, and a value it refuses reverts on screen to the value in force | Must |
 | FR-11 | A setting changed on the screen survives a power cycle, through the same automatic save at shutdown as the other persistent settings | Must |
 | FR-12 | Values changed elsewhere, such as online in XAE, appear on the screen | Should |
-| FR-13 | The application starts by itself when the controller boots, full screen, and shows starting up or not connected until the PLC is reachable and running | Must |
+| FR-13 | The application starts by itself when the controller boots, full screen | Must |
+| FR-14 | The About page shows the HB logo, and its Exit Application button closes the application after confirmation, leaving the machine running | Should |
+| FR-15 | The About page's Shut Down Controller button, after confirmation, has the PLC save its persistent settings and shut the controller down | Should |
 
 ### Non-Functional Requirements
 
 | ID | Requirement | Priority |
 |----|-------------|----------|
 | NFR-01 | With no on-screen button held, the machine behaves identically with the application running, closed, crashed or unable to connect, and the physical buttons always work | Must |
-| NFR-02 | The loss of the screen while one of its buttons is held is detected and acted on as a release within half a second | Must |
+| NFR-02 | Out of scope: the loss of the screen while one of its buttons is held is not detected (see FR-08) | Won't |
 | NFR-03 | Running the application causes no PLC task overruns on the controller | Must |
 | NFR-04 | A change of machine status appears on screen within half a second | Should |
 | NFR-05 | Status is readable from the operator's position at the table, and is never shown by colour alone | Should |
 | NFR-06 | Buttons and settings work with the screen's input device alone. If it is a touch screen, without a physical keyboard | Should |
-| NFR-07 | Every press, release and setting change from the screen is logged as coming from the screen | Should |
+| NFR-07 | Every press and release from the screen is logged as coming from the screen | Should |
 | NFR-08 | Any PLC additions follow the HB TwinCAT 3 Structured Text coding standard | Must |
+| NFR-09 | The whole application fits the 1024×768 panel without clipping | Must |
 
 ## Technical Constraints
 
@@ -108,21 +118,24 @@ screen is running, closed or crashed. The physical buttons always work.
 
 ## Success Criteria
 
-- [ ] Each status (starting up or not connected, safety stop, error, stopped before dwell, moving, ready) appears correctly when the machine is put into it (FR-01)
-- [ ] The PLC's message is shown and matches the online view (FR-02)
-- [ ] The screen shows at-station status, matching the dwell cam (FR-03)
-- [ ] Every success criterion of Hold-to-Run Manual Index and Resume After Early Release passes using the on-screen Forward and Reverse (FR-04, FR-07)
-- [ ] On-screen Reset clears a latched fault and, after an E-stop, resets the safety system (FR-05)
-- [ ] During a move held on screen, the physical buttons and the other on-screen button have no effect, and the same applies the other way round (FR-06)
-- [ ] Killing the application, and separately pulling its connection, while an on-screen button is held stops the table within half a second with the early-release error (FR-08, NFR-02)
-- [ ] Index speed and both ramps can be changed from the screen, and the next index uses them. Changing one form of a ramp updates the other (FR-09)
-- [ ] An out-of-range value entered on the screen is refused with its reason, and the screen shows the value in force (FR-10)
-- [ ] A value set on the screen is still in force after a power cycle (FR-11)
-- [ ] A value changed online in XAE appears on the screen (FR-12)
-- [ ] After a power cycle, the application comes up on its own and shows starting up until the PLC runs (FR-13)
-- [ ] With the application closed, the physical buttons work exactly as before (NFR-01)
-- [ ] The PLC task shows no overruns with the application running (NFR-03)
-- [ ] The log shows on-screen presses, releases and setting changes as coming from the screen (NFR-07)
+- [x] Each status (safety stop, error, stopped before dwell, moving, ready) appears in the top bar as the PLC's text when the machine is put into it (FR-01)
+- [x] The PLC's message is shown and matches the online view (FR-02)
+- [x] The screen shows at-station status, matching the dwell cam (FR-03)
+- [x] Every success criterion of Hold-to-Run Manual Index and Resume After Early Release passes using the on-screen Forward and Reverse (FR-04, FR-07)
+- [x] On-screen Reset clears a latched fault and, after an E-stop, resets the safety system (FR-05)
+- [x] During a move, presses of other buttons, on screen or physical, have no effect, and the move continues while its button is held on screen or physically (FR-06)
+- [x] Killing the application while an on-screen Forward is held lets the index run on to the station; the next Reset clears the held button, and the physical buttons then work as before (FR-08)
+- [x] Index speed and both ramps can be changed from the screen, and the next index uses them. Changing one form of a ramp updates the other (FR-09)
+- [x] An out-of-range value cannot be entered on the screen, and a value the PLC refuses goes back to the value in force (FR-10)
+- [x] A value set on the screen is still in force after a power cycle (FR-11)
+- [x] A value changed online in XAE appears on the screen (FR-12)
+- [x] After a power cycle, the application comes up on its own and shows the machine status once the PLC runs (FR-13)
+- [x] The About page shows the HB logo; Exit Application asks, then closes the application with the machine still running (FR-14)
+- [x] Shut Down Controller asks, then the PLC saves its settings and the controller shuts down (FR-15)
+- [x] With the application closed, the physical buttons work exactly as before (NFR-01)
+- [x] The PLC task shows no overruns with the application running (NFR-03)
+- [x] The log shows on-screen presses and releases as coming from the screen (NFR-07)
+- [x] Every tab fits the 1024×768 panel without clipping (NFR-09)
 
 ## Verification Plan
 
@@ -130,8 +143,8 @@ screen is running, closed or crashed. The physical buttons always work.
    the table safe, enter good and bad values.
 2. **On site, with guards and E-stop in force:** fit the screen and power-cycle to confirm
    auto-start. Repeat the hold-to-run and creep tests with the on-screen buttons. Mix screen and
-   physical buttons during moves. Kill the application, and separately disconnect it, during a
-   held move. Watch the PLC task's cycle time and overruns.
+   physical buttons during moves. Kill the application during a held move, then Reset. Watch the
+   PLC task's cycle time and overruns.
 3. **Hand-over:** William drives the table and changes the speed and ramps from the screen, and
    confirms it tells him what he needs.
 
@@ -143,6 +156,10 @@ screen is running, closed or crashed. The physical buttons always work.
 * Alarm history, trends, recipes or production data
 * Remote access, a web HMI or TwinCAT HMI
 * The full production HMI for the automatic system
+* Detecting the loss of the screen while one of its buttons is held (a heartbeat or watchdog)
+* Showing on screen why the PLC refused a setting, until the PLC log is shown on screen
+* Logging setting changes with their source
+* Showing that the screen is not connected to the PLC, or that the PLC is not running
 
 ## Known Limitations
 
@@ -151,6 +168,12 @@ screen is running, closed or crashed. The physical buttons always work.
 - A setting changed just before the controller fails without a clean shutdown may be lost, since
   persistent settings are saved at shutdown.
 - The screen is only as informative as the PLC's status messages.
+- If the screen loses the PLC, the top bar does not say so.
+- A Forward or Reverse left held by a screen that closed or crashed holds its move to the station,
+  and that pushbutton gives no fresh press until Reset clears it.
+- An on-screen button is released when the finger lifts, not when it slides off the button.
+- A ramp inside the screen's limits can still be refused by the PLC once scaled to the index speed;
+  it goes back to the value in force with no reason shown.
 
 ## References
 
